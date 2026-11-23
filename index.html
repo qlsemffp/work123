@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK하이닉스 반도체 웨이퍼 제조 공정 인터랙티브 익스플로러</title>
+  <!-- Tailwind Warning Silencer & Config -->
+  <script>
+    // Tailwind CSS CDN 개발용 안내 경고(cdn.tailwindcss.com should not be used in production) 필터링
+    const _origWarn = console.warn;
+    console.warn = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+        return;
+      }
+      _origWarn.apply(console, args);
+    };
+  </script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sk: {
+              red: '#ED1C24',
+              dark: '#0B0F19',
+              slate: '#161F30'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-[#0B0F19] text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-[#0B0F19]/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-red-600 text-white font-black text-xl shadow-lg shadow-red-600/30">
+          SK
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base lg:text-lg font-black tracking-tight text-white">
+              SK hynix Wafer Fab Explorer
+            </h1>
+            <span class="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/30">
+              Ver 1.0 표준 해설
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">
+            32단계 웨이퍼 제조 공정 & MOSFET 소자 인터랙티브 시뮬레이터
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <button id="open-quiz-btn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 transition-all shadow-sm">
+          <span>💡</span>
+          <span>공정 퀴즈 풀기</span>
+        </button>
+
+        <button id="theme-toggle-btn" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all" title="테마 변경">
+          <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-10">
+
+    <!-- HERO & 6대 단위 공정 순환 사이클 바 -->
+    <section class="space-y-3">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold text-red-500 tracking-wider uppercase">Semiconductor 6 Core Unit Processes</span>
+          <h2 class="text-xl md:text-2xl font-black text-white">6대 단위 공정 순환 사이클</h2>
+        </div>
+        <p class="text-xs text-slate-400 max-w-xl">
+          반도체 칩은 단 한 번의 가공이 아니라, 아래 6대 핵심 공정이 수십~수백 회 유기적으로 반복 누적되는 3차원 적층 공정입니다. 공정 카드를 클릭하면 해당 단계들을 필터링합니다.
+        </p>
+      </div>
+
+      <!-- Process Cycle Interactive Grid -->
+      <div id="core-process-cycle" class="w-full">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 1: 32단계 웨이퍼 단면 시뮬레이터 ==================== -->
+    <section id="simulator-section" class="space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold text-sky-400 tracking-wider uppercase font-mono">Dynamic Wafer Cross-Section Simulator</span>
+          <h2 class="text-2xl font-black text-white flex items-center gap-2">
+            <span>32단계 웨이퍼 단면 시뮬레이터</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-normal">
+              키보드 ◀ ▶ 방향키 지원
+            </span>
+          </h2>
+        </div>
+
+        <!-- Part Navigation Tabs -->
+        <div id="part-tabs-container" class="flex items-center gap-1.5 flex-wrap">
+          <!-- Rendered by app.js -->
+        </div>
+      </div>
+
+      <!-- Main Simulator Layout: 2 Columns on Desktop -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: SVG Viewer & Controls (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <!-- SVG Container Box -->
+          <div class="glass-panel p-2.5 rounded-2xl relative overflow-hidden border border-slate-700/80 shadow-2xl">
+            <!-- View Controls Overlay (Top Right) -->
+            <div class="absolute top-4 right-4 z-10 flex items-center gap-2">
+              <button id="toggle-labels-btn" class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-300 transition-all">
+                라벨 표시 On/Off
+              </button>
+            </div>
+
+            <!-- SVG Container -->
+            <div id="svg-container" class="w-full aspect-[16/10] bg-[#070c18] rounded-xl overflow-hidden flex items-center justify-center">
+              <!-- Rendered dynamically by svgRenderer.js -->
+            </div>
+          </div>
+
+          <!-- Timeline Controls Bar -->
+          <div class="glass-panel p-4 rounded-2xl space-y-3 border border-slate-700/80">
+            <!-- Slider -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between text-xs font-semibold">
+                <span class="text-slate-400 font-mono">Step 01: 초기 산화막</span>
+                <span class="text-red-400 font-mono font-bold">Step 32: MOSFET 소자 완성</span>
+              </div>
+              <input type="range" id="step-slider" min="1" max="32" value="1" step="1" class="w-full custom-slider cursor-pointer">
+            </div>
+
+            <!-- Buttons Toolbar -->
+            <div class="flex items-center justify-between gap-2 pt-1 flex-wrap">
+              <div class="flex items-center gap-2">
+                <!-- Prev Button -->
+                <button id="prev-step-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed" title="이전 단계 (◀ 방향키)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+
+                <!-- Play/Pause Button -->
+                <button id="play-btn" class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-red-600 hover:bg-red-500 text-white transition-all shadow-lg shadow-red-600/30">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  <span>자동 재생</span>
+                </button>
+
+                <!-- Next Button -->
+                <button id="next-step-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed" title="다음 단계 (▶ 방향키)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+
+              <!-- Speed Controller & Hint -->
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400 font-mono hidden sm:inline">재생 속도:</span>
+                <button id="speed-btn" class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-all" title="속도 변경 (1x, 1.5x, 2x)">
+                  1.0x
+                </button>
+                <span class="text-[11px] text-slate-500 font-mono hidden md:inline">Space: 재생/정지</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Step Detail Card (5 Cols) -->
+        <div class="lg:col-span-5">
+          <div class="glass-panel p-6 rounded-2xl border border-slate-700/80 space-y-4 shadow-xl">
+            <!-- Badges -->
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="flex items-center gap-2">
+                <span id="step-number-badge" class="px-2.5 py-1 rounded-md text-xs font-black font-mono bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                  STEP 01 / 32
+                </span>
+                <span id="part-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                  PART 1
+                </span>
+              </div>
+              <span id="process-badge" class="px-3 py-1 rounded-full text-xs font-extrabold border">
+                박막 증착 (Thin Film)
+              </span>
+            </div>
+
+            <!-- Titles -->
+            <div>
+              <h3 id="step-title-ko" class="text-xl font-black text-white tracking-tight mb-1">
+                Silicon Oxide (초기 산화막 성장)
+              </h3>
+              <p id="step-title-en" class="text-xs text-slate-400 font-mono">
+                Initial Thermal Oxidation
+              </p>
+            </div>
+
+            <!-- Purpose & Mechanism -->
+            <div class="space-y-3 pt-2 border-t border-slate-800">
+              <div>
+                <span class="text-xs font-bold text-sky-400 block mb-1">🎯 공정 목적</span>
+                <p id="step-purpose" class="text-sm text-slate-200 leading-relaxed font-medium">
+                  웨이퍼 표면 보호 및 후속 공정의 마스킹 절연막 형성
+                </p>
+              </div>
+
+              <div>
+                <span class="text-xs font-bold text-slate-400 block mb-1">⚙ 상세 메커니즘</span>
+                <p id="step-mechanism" class="text-xs text-slate-300 leading-relaxed">
+                  800~1,100℃의 고온 산화로에서 산소(O₂)를 주입하여 실리콘 웨이퍼 최상단에 얇고 균일한 이산화규소(SiO₂) 절연 박막을 열적으로 성장시킵니다.
+                </p>
+              </div>
+            </div>
+
+            <!-- Engineering Tip Box -->
+            <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30">
+              <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5 mb-1">
+                <span>💡</span> 엔지니어링 핵심 포인트
+              </span>
+              <p id="step-tip" class="text-xs text-slate-300 leading-relaxed">
+                열산화막은 결함 밀도가 극히 낮아 웨이퍼 기판의 불순물 오염을 원천 차단하는 패시베이션 역할을 수행합니다.
+              </p>
+            </div>
+
+            <!-- Process Parameters Grid -->
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 block mb-1.5 font-mono">PROCESS PARAMETERS</span>
+              <div id="step-params-container" class="grid grid-cols-2 gap-2">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 2: 완성 MOSFET 소자 동작 원리 & 인스펙터 ==================== -->
+    <section class="space-y-4 pt-4 border-t border-slate-800">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold text-emerald-400 tracking-wider uppercase font-mono">Device Physics & Operation</span>
+          <h2 class="text-2xl font-black text-white">MOSFET 스위칭 동작 & 부위별 인스펙터</h2>
+        </div>
+        <p class="text-xs text-slate-400 max-w-xl">
+          완성된 트랜지스터에서 게이트 전압을 인가하여 산화막 아래에 반전층(N-Channel)이 형성되고 전자가 흐르는 원리를 직접 조작해 보세요.
+        </p>
+      </div>
+
+      <!-- MOSFET Simulator Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: Canvas Animation & Controls (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <!-- Canvas Container -->
+          <div class="glass-panel p-4 rounded-2xl border border-slate-700/80 space-y-3">
+            <!-- Top Status Bar -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-400">소자 상태:</span>
+                <span id="mosfet-state-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-rose-950/80 border border-rose-500/50 text-rose-300">
+                  <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-400 mr-1.5"></span>
+                  OFF (차단 상태)
+                </span>
+              </div>
+              <div class="flex items-center gap-2 text-xs font-mono">
+                <span class="text-slate-400">드레인 전류 (Ids):</span>
+                <span id="current-ids-val" class="font-bold text-slate-400">0.00 μA</span>
+              </div>
+            </div>
+
+            <!-- Canvas Viewport -->
+            <div class="relative w-full aspect-[16/9] bg-[#070c18] rounded-xl overflow-hidden border border-slate-800">
+              <canvas id="mosfet-canvas" class="w-full h-full block"></canvas>
+            </div>
+
+            <!-- Gate Voltage Interactive Controls -->
+            <div class="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <label for="gate-v-slider" class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  게이트 인가 전압 (Gate Voltage, Vgs):
+                </label>
+                <span id="gate-v-val" class="text-sm font-mono font-bold text-emerald-400">0.0 V</span>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <input type="range" id="gate-v-slider" min="0" max="3.3" step="0.1" value="0" class="w-full custom-slider cursor-pointer">
+                <button id="gate-toggle-btn" class="px-4 py-2 rounded-lg font-bold text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 transition-all whitespace-nowrap">
+                  Gate OFF (0.0V)
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                <span>0.0V (차단)</span>
+                <span class="text-amber-400">문턱 전압 (Vth = 0.7V)</span>
+                <span>+3.3V (완전 도통)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Component Inspector (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="glass-panel p-5 rounded-2xl border border-slate-700/80 space-y-4">
+            <div>
+              <span class="text-xs font-bold text-sky-400 font-mono">COMPONENT INSPECTOR</span>
+              <h3 class="text-lg font-black text-white">부위별 구조 및 역할 탐색</h3>
+              <p class="text-xs text-slate-400">아래 부품 버튼을 클릭하여 각 구성 요소의 상세 스펙을 확인하세요.</p>
+            </div>
+
+            <!-- Component Selection Chips -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="gate">
+                Gate (게이트)
+              </button>
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="gateOxide">
+                Gate Oxide
+              </button>
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="source">
+                Source (소스)
+              </button>
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="drain">
+                Drain (드레인)
+              </button>
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="wafer">
+                기판 (Wafer)
+              </button>
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="contactPlug">
+                Contact Plug
+              </button>
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="ild">
+                ILD (절연막)
+              </button>
+              <button class="px-2.5 py-2 rounded-lg text-xs font-bold border transition-all text-center" data-comp-btn="metal">
+                Metal 배선
+              </button>
+            </div>
+
+            <!-- Dynamic Component Detail View -->
+            <div id="mosfet-component-detail">
+              <!-- Rendered by mosfetSim.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 3: 엔지니어링 매핑 매트릭스 & 검색/필터 ==================== -->
+    <section id="matrix-section" class="space-y-4 pt-4 border-t border-slate-800">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold text-amber-400 tracking-wider uppercase font-mono">Engineering Mapping Matrix</span>
+          <h2 class="text-2xl font-black text-white">32단계 공정 총괄 매핑 매트릭스</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            행을 클릭하면 상단 시뮬레이터가 해당 단계로 동기화 이동합니다.
+          </p>
+        </div>
+
+        <!-- Real-time Search Box -->
+        <div class="w-full md:w-72">
+          <div class="relative">
+            <input type="text" id="matrix-search-input" placeholder="공정명, 기술 키워드 검색..." class="w-full px-4 py-2 pl-9 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition-colors">
+            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button class="filter-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-red-600 text-white shadow-md shadow-red-600/30 transition-all" data-filter-pill="ALL">
+          전체 (32개 공정)
+        </button>
+        <button class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-all" data-filter-pill="Thin Film">
+          박막 증착
+        </button>
+        <button class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-all" data-filter-pill="Photo">
+          포토리소그래피
+        </button>
+        <button class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-all" data-filter-pill="Etch">
+          식각
+        </button>
+        <button class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-all" data-filter-pill="Diffusion">
+          확산·도핑·열처리
+        </button>
+        <button class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-all" data-filter-pill="CMP">
+          화학기계연마(CMP)
+        </button>
+        <button class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-all" data-filter-pill="Cleaning">
+          세정
+        </button>
+      </div>
+
+      <!-- Table Container -->
+      <div class="glass-panel rounded-2xl overflow-hidden border border-slate-700/80">
+        <div class="overflow-x-auto max-h-[500px]">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 bg-slate-900/95 backdrop-blur-md text-xs uppercase text-slate-400 font-mono border-b border-slate-800 z-10">
+              <tr>
+                <th class="py-3 px-4 text-center w-16">단계</th>
+                <th class="py-3 px-4 w-64">공정명 (영상 명기)</th>
+                <th class="py-3 px-4 w-36">6대 공정 분류</th>
+                <th class="py-3 px-4">주요 목적 및 메커니즘</th>
+                <th class="py-3 px-4 w-72">엔지니어링 핵심 포인트</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-table-body" class="divide-y divide-slate-800/80">
+              <!-- Rendered by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECTION 4: 차세대 반도체 기술 로드맵 ==================== -->
+    <section class="space-y-4 pt-4 border-t border-slate-800">
+      <div>
+        <span class="text-xs font-bold text-red-500 tracking-wider uppercase font-mono">Future Roadmap & Evolution</span>
+        <h2 class="text-2xl font-black text-white">평면 MOSFET에서 차세대 반도체로의 진화</h2>
+        <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+          본 매뉴얼에서 다룬 평면 MOSFET과 6대 단위 공정 원리는 오늘날 SK하이닉스의 글로벌 리더십 제품(HBM3E/HBM4, 321단 4D NAND) 및 차세대 로직 반도체의 절대적인 기본 토대입니다.
+        </p>
+      </div>
+
+      <div id="roadmap-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="mt-16 border-t border-slate-800 bg-[#070c18] py-8 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="font-bold text-slate-400">SK하이닉스 반도체 웨이퍼 제조 공정 인터랙티브 플랫폼</p>
+        <p class="mt-0.5">데이터 출처: SK hynix Official Semiconductor Video Archive [AcDn4bvW5IU] / Ver 1.0 매뉴얼</p>
+      </div>
+      <div class="text-slate-400">
+        Created with Antigravity AI Engineering
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== QUIZ MODAL ==================== -->
+  <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden animate-fadeIn">
+    <div class="glass-panel w-full max-w-xl rounded-2xl border border-slate-700 p-6 space-y-5 shadow-2xl relative">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">💡</span>
+          <div>
+            <h3 class="text-base font-bold text-white">반도체 공정 엔지니어링 퀴즈</h3>
+            <span id="quiz-q-num" class="text-xs text-slate-400 font-mono">Question 1 of 6</span>
+          </div>
+        </div>
+        <button id="close-quiz-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Question Text -->
+      <div class="space-y-4">
+        <p id="quiz-q-text" class="text-sm font-semibold text-white leading-relaxed">
+          <!-- Question text -->
+        </p>
+
+        <!-- Options Container -->
+        <div id="quiz-options-container" class="space-y-2">
+          <!-- Options rendered dynamically -->
+        </div>
+
+        <!-- Explanation Alert -->
+        <div id="quiz-explanation" class="hidden">
+          <!-- Explanation alert rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+        <button id="quiz-prev-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+          ◀ 이전 문제
+        </button>
+        <button id="quiz-next-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+          다음 문제 ▶
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules (Pure Vanilla JS) -->
+  <script src="js/fabData.js"></script>
+  <script src="js/svgRenderer.js"></script>
+  <script src="js/mosfetSim.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
